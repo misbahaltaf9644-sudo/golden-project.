@@ -1,0 +1,6 @@
+⚠ [1873/1874] Built Solution (1.1s)
+warning: Solution.lean:7:8: declaration uses `sorry`
+Build completed successfully (1874 jobs).
+BUILD_EXIT=0
+'Matrix.perron_frobenius_of_isIrreducible' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]
+AXIOMS_EXIT=0
