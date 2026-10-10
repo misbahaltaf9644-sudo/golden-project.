@@ -1,2 +1,2 @@
 import Solution
-#print axioms smoke
+#print axioms Matrix.perron_full_of_pos
