@@ -1,0 +1,35 @@
+name: build
+on: [push, workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: install elan
+        run: |
+          curl -sSfL https://github.com/leanprover/elan/releases/latest/download/elan-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          ./elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: mathlib and cache
+        run: |
+          lake update mathlib 2>&1 | tail -3
+          lake exe cache get 2>&1 | tail -3
+      - name: build
+        run: |
+          { lake build Solution 2>&1; echo "BUILD_EXIT=$?"; } | tee build.log
+          { lake env lean Axioms.lean 2>&1; echo "AXIOMS_EXIT=$?"; } | tee -a build.log
+      - name: publish log
+        if: always()
+        run: |
+          cp build.log /tmp/build.log || echo "no build.log" > /tmp/build.log
+          git config user.name ci
+          git config user.email ci@users.noreply.github.com
+          git checkout --orphan logs
+          git rm -rfq .
+          cp /tmp/build.log build.log
+          git add build.log
+          git commit -qm "log for $GITHUB_SHA"
+          git push -f origin logs
